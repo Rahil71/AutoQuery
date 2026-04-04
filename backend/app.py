@@ -8,7 +8,12 @@ def create_app():
 
     app.config.from_object(Config)
 
-    init_prod_db(app.config["DATABASE_URL"])
+    db_url = app.config.get("DATABASE_URL")
+
+    if db_url:
+        init_prod_db(db_url)
+    else:
+        print("No DATABASE_URL found. Waiting for /connect-db")
 
     app.register_blueprint(query_bp, url_prefix="/api")
 
