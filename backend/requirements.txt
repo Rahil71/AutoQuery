@@ -8,3 +8,11 @@ requests
 python-dotenv
 groq
 openai
+google-genai
+flask
+sqlalchemy
+python-dotenv
+google-genai
+groq
+openai
+psycopg2-binary
