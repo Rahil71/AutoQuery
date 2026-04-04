@@ -1,0 +1,65 @@
+{
+    "tables": {
+        "customers": {
+            "columns": [
+                "id",
+                "name",
+                "email"
+            ],
+            "primary_key": [
+                "id"
+            ]
+        },
+        "orders": {
+            "columns": [
+                "id",
+                "customer_id",
+                "order_date"
+            ],
+            "primary_key": [
+                "id"
+            ]
+        },
+        "order_items": {
+            "columns": [
+                "id",
+                "order_id",
+                "product_id",
+                "quantity"
+            ],
+            "primary_key": [
+                "id"
+            ]
+        },
+        "products": {
+            "columns": [
+                "id",
+                "name",
+                "price"
+            ],
+            "primary_key": [
+                "id"
+            ]
+        }
+    },
+    "relationships": [
+        {
+            "from_table": "orders",
+            "from_column": "customer_id",
+            "to_table": "customers",
+            "to_column": "id"
+        },
+        {
+            "from_table": "order_items",
+            "from_column": "order_id",
+            "to_table": "orders",
+            "to_column": "id"
+        },
+        {
+            "from_table": "order_items",
+            "from_column": "product_id",
+            "to_table": "products",
+            "to_column": "id"
+        }
+    ]
+}
