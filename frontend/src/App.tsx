@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { BarChart3, RefreshCw } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { BarChart3, RefreshCw, Lightbulb, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import ConnectionScreen from './components/ConnectionScreen';
 import SchemaVisualizer from './components/SchemaVisualizer';
@@ -12,13 +12,9 @@ import type { QueryResponse, GraphData } from './types';
 
 const API_BASE = "https://autoquery-3.onrender.com/api";
 
-// Animation Variants for staggering children and smooth layout
 const containerVariants = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 }
-  }
+  show: { opacity: 1, transition: { staggerChildren: 0.15 } }
 };
 
 const itemVariants = {
@@ -36,6 +32,10 @@ export default function App() {
   
   const [result, setResult] = useState<QueryResponse | null>(null);
   const [graphData, setGraphData] = useState<GraphData | null>(null);
+
+  // New states for the Insights feature
+  const [insightsLoading, setInsightsLoading] = useState(false);
+  const [dbInsights, setDbInsights] = useState<string | null>(null);
 
   const handleConnect = async (dbUrl: string) => {
     setLoading(true);
@@ -89,6 +89,25 @@ export default function App() {
     }
   };
 
+  const fetchInsights = async () => {
+    if (dbInsights) {
+      setDbInsights(null); // Toggle off if already open
+      return;
+    }
+    
+    setInsightsLoading(true);
+    try {
+      const res = await axios.post(`${API_BASE}/insights`, { provider });
+      // Assuming backend returns {"insights": "text..."}
+      setDbInsights(res.data.insights || JSON.stringify(res.data)); 
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load insights.");
+    } finally {
+      setInsightsLoading(false);
+    }
+  };
+
   if (!isConnected) {
     return <ConnectionScreen onConnect={handleConnect} loading={loading} />;
   }
@@ -101,17 +120,28 @@ export default function App() {
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="border-b border-slate-800 p-4 flex justify-between items-center bg-slate-900/70 backdrop-blur-md sticky top-0 z-50 shadow-sm"
+        className="border-b border-slate-800 p-4 flex flex-wrap justify-between items-center bg-slate-900/70 backdrop-blur-md sticky top-0 z-50 shadow-sm gap-4"
       >
         <div className="flex items-center gap-3">
-          {/* LOGO IN NAVIGATION */}
           <div className="p-1 bg-white rounded-lg shadow-inner">
             <img src="/logo.jpeg" alt="AutoQuery Logo" className="w-8 h-8 object-contain" />
           </div>
           <span className="font-bold text-white tracking-tight text-lg">AutoQuery <span className="text-indigo-400">AI</span></span>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Insights Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={fetchInsights}
+            disabled={insightsLoading}
+            className="flex items-center gap-2 text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-4 py-2 rounded-lg hover:bg-amber-500/20 transition-colors font-semibold"
+          >
+            <Lightbulb className={`w-3.5 h-3.5 ${insightsLoading ? 'animate-pulse' : ''}`} />
+            {insightsLoading ? "Analyzing..." : "DB Insights"}
+          </motion.button>
+
           <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg p-1 shadow-inner">
             <span className="text-xs text-slate-500 pl-2 uppercase font-bold">LLM</span>
             <select 
@@ -124,26 +154,48 @@ export default function App() {
               <option value="gpt" className="bg-slate-900">OpenAI GPT-4</option>
             </select>
           </div>
+
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={resetSandbox}
             className="flex items-center gap-2 text-xs bg-red-500/10 text-red-400 border border-red-500/20 px-4 py-2 rounded-lg hover:bg-red-500/20 transition-colors font-semibold"
           >
-            <RefreshCw className="w-3 h-3" /> Reset Sandbox
+            <RefreshCw className="w-3.5 h-3.5" /> Reset Sandbox
           </motion.button>
         </div>
       </motion.nav>
 
-      {/* Main Content Layout with Staggered Animations */}
+      {/* Expandable Insights Banner */}
+      <AnimatePresence>
+        {dbInsights && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="border-b border-amber-500/20 bg-gradient-to-r from-amber-500/10 to-orange-500/5 overflow-hidden"
+          >
+            <div className="max-w-7xl mx-auto p-6 relative">
+              <button onClick={() => setDbInsights(null)} className="absolute top-4 right-4 text-amber-500/50 hover:text-amber-400 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+              <h3 className="text-amber-400 font-bold mb-2 flex items-center gap-2">
+                <Lightbulb className="w-4 h-4" /> AI Database Insights
+              </h3>
+              <p className="text-sm text-slate-300 leading-relaxed max-w-4xl whitespace-pre-wrap">
+                {dbInsights}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.main 
         variants={containerVariants}
         initial="hidden"
         animate="show"
         className="max-w-7xl mx-auto p-6 grid grid-cols-12 gap-6"
       >
-        
-        {/* Left Column: Query & Results */}
         <div className="col-span-12 lg:col-span-8 space-y-6 overflow-hidden">
           <motion.div variants={itemVariants}>
             <QueryInterface 
@@ -156,12 +208,12 @@ export default function App() {
 
           {result && (
              <motion.div variants={itemVariants}>
-               <ResultsDisplay result={result} />
+               {/* Updated to pass query and provider down to the Results Display */}
+               <ResultsDisplay result={result} query={query} provider={provider} />
              </motion.div>
           )}
         </div>
 
-        {/* Right Column: Schema Graph (Stays Fixed while scrolling) */}
         <motion.div variants={itemVariants} className="col-span-12 lg:col-span-4 space-y-6">
           <div className="bg-slate-900/80 backdrop-blur-sm border border-slate-800 rounded-2xl p-6 shadow-xl sticky top-24">
             <div className="flex items-center justify-between mb-4">
@@ -179,7 +231,6 @@ export default function App() {
             <SchemaVisualizer graphData={graphData} />
           </div>
         </motion.div>
-        
       </motion.main>
     </div>
   );
