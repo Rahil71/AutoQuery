@@ -2,6 +2,7 @@ from backend.llm_providers import groq_provider, openai_provider, gemini_provide
 import json
 import re
 
+
 def extract_json(text):
     try:
         # Remove markdown ```json ```
@@ -18,7 +19,6 @@ def extract_json(text):
 
 
 def generate_chart_config(data, user_query, provider="groq"):
-
     prompt = f"""
 You are a data visualization expert.
 
@@ -34,8 +34,7 @@ Rules:
 - If proportions → pie chart
 - If unclear → table
 
-Return ONLY VALID JSON.
-DO NOT include markdown or explanation.
+Return ONLY VALID JSON. DO NOT include markdown or explanation.
 
 Format:
 {{
@@ -53,13 +52,10 @@ Format:
 
     if provider == "groq":
         response = groq_provider.generate_text(prompt)
-
     elif provider == "gpt":
         response = openai_provider.generate_text(prompt)
-
     elif provider == "gemini":
         response = gemini_provider.generate_text(prompt)
-
     else:
         raise ValueError("Unsupported provider")
 
@@ -68,6 +64,7 @@ Format:
     if parsed:
         return parsed
 
+    # Fallback
     return {
         "chart_type": "bar",
         "title": "Auto Generated Chart",
@@ -75,7 +72,7 @@ Format:
         "datasets": [
             {
                 "label": list(data[0].keys())[1],
-                "data": [row[list(row.keys())[1]] for row in data]
+                "data": [row[list(row.keys())[1]] for row in data],
             }
-        ]
+        ],
     }

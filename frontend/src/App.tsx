@@ -10,7 +10,7 @@ import QueryInterface from './components/QueryInterface';
 
 import type { QueryResponse, GraphData } from './types';
 
-const API_BASE = "https://autoquery-3.onrender.com/api";
+const API_BASE = "http://localhost:5001/api";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -97,7 +97,7 @@ export default function App() {
     
     setInsightsLoading(true);
     try {
-      const res = await axios.post(`${API_BASE}/insights`, { provider });
+      const res = await axios.post(`${API_BASE}/insights`, { provider, data: result.data });
       // Assuming backend returns {"insights": "text..."}
       setDbInsights(res.data.insights || JSON.stringify(res.data)); 
     } catch (err) {
@@ -107,6 +107,10 @@ export default function App() {
       setInsightsLoading(false);
     }
   };
+
+
+
+
 
   if (!isConnected) {
     return <ConnectionScreen onConnect={handleConnect} loading={loading} />;

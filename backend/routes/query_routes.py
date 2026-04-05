@@ -57,18 +57,24 @@ def generate_query():
         # }), 400
 
         raw_data = run_query(sql)
-        
+
+        if raw_data["type"] == "select":
+            db_rows = raw_data["data"]
+        else:
+            db_rows = []
+
         db_result = {
             "success": True,
-            "data": raw_data,
+            "data": db_rows,
             "error": None
         }
 
         chart = None
 
+        # Safe chart generation
         if visualize and db_result["success"] and db_result["data"]:
             chart = generate_chart_config(
-                db_result["data"][:10],
+                db_result["data"][:10],  # now db_result["data"] is a list
                 user_query,
                 provider
             )
@@ -131,13 +137,35 @@ def connect_db():
         return jsonify({"error": str(e)}), 500
     
 
+# @query_bp.route("/insights", methods=["POST"])
+# def get_insights():
+#     data = request.get_json()
+#     provider = data.get("provider", "groq")
+
+#     try:
+#         insights = generate_insights(provider)
+
+#         return jsonify({
+#             "insights": insights,
+#             "provider_used": provider
+#         })
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+
+
 @query_bp.route("/insights", methods=["POST"])
 def get_insights():
     data = request.get_json()
+    print("DATA IN INSIGHTS: ",data)
+
     provider = data.get("provider", "groq")
+    report_data = data.get("data")
+
+    print("Report data: ",report_data)
 
     try:
-        insights = generate_insights(provider)
+        insights = generate_insights(report_data, provider)
 
         return jsonify({
             "insights": insights,
