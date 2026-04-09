@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import ChartRenderer from './ChartRenderer';
 import type { QueryResponse } from '../types';
 
-const API_BASE = "https://autoquery-3.onrender.com/api";
+const API_BASE = "http://localhost:5001/api";
 
 interface Props {
   result: QueryResponse;

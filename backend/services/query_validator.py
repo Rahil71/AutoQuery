@@ -1,5 +1,5 @@
 from backend.utils.schema_manager import get_schema
-from backend.llm_providers import groq_provider, openai_provider, gemini_provider
+from backend.llm_providers import groq_provider, openai_provider, gemini_provider, local_provider
 
 def validate_query_with_llm(user_query, provider="groq"):
     schema = get_schema()
@@ -28,7 +28,9 @@ YES or NO
         response = openai_provider.generate_sql(prompt)
     elif provider == "gemini":
         response = gemini_provider.generate_sql(prompt)
+    elif provider == "local": # Added fine-tuned model
+        sql = local_provider.generate_sql(prompt)
     else:
-        raise ValueError("Unsupported provider")
+        raise ValueError("Unsupported provider from query_validator.py")
 
     return response.strip().upper()

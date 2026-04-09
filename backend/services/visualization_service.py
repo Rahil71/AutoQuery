@@ -1,4 +1,4 @@
-from backend.llm_providers import groq_provider, openai_provider, gemini_provider
+from backend.llm_providers import groq_provider, openai_provider, gemini_provider, local_provider
 import json
 import re
 
@@ -56,8 +56,10 @@ Format:
         response = openai_provider.generate_text(prompt)
     elif provider == "gemini":
         response = gemini_provider.generate_text(prompt)
+    elif provider == "local": # Added fine-tuned model
+        return local_provider.generate_sql(prompt)
     else:
-        raise ValueError("Unsupported provider")
+        raise ValueError("Unsupported provider from visulization_service.py")
 
     parsed = extract_json(response)
 

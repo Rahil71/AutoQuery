@@ -1,7 +1,11 @@
-from backend.llm_providers import gemini_provider, groq_provider, openai_provider
+from backend.llm_providers import gemini_provider, groq_provider, openai_provider, local_provider
 import json
+from backend.utils.schema_manager import get_schema
 
 def generate_insights(report_data, provider="groq"):
+
+    # print(report_data)
+    schema=get_schema()
 
     prompt = f"""
 You are a senior data analyst.
@@ -9,7 +13,8 @@ You are a senior data analyst.
 Given this report data:
 {report_data}
 
-Generate business insights.
+Generate insights based on the type of schema of the database provided:
+{schema}
 
 Rules:
 - Focus on trends, anomalies, top performers
@@ -33,6 +38,9 @@ Return ONLY JSON:
 
     elif provider == "gemini":
         response = gemini_provider.generate_text(prompt)
+
+    elif provider == "local": # Added fine-tuned model
+        return local_provider.generate_sql(prompt)
 
     try:
         cleaned = response.replace("```json", "").replace("```", "").strip()

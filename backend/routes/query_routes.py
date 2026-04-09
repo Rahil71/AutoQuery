@@ -79,6 +79,9 @@ def generate_query():
                 provider
             )
 
+        if not isinstance(chart, dict) or "datasets" not in chart:
+            chart = None
+
         explanation = None
         if explain and db_result["success"]:
             explanation = explain_result_with_llm(

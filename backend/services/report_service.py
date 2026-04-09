@@ -1,4 +1,4 @@
-from backend.llm_providers import groq_provider, openai_provider, gemini_provider
+from backend.llm_providers import groq_provider, openai_provider, gemini_provider, local_provider
 from backend.services.sql_service import run_query
 import json
 from backend.utils.schema_manager import get_schema
@@ -47,8 +47,11 @@ Return ONLY JSON:
     elif provider == "gemini":
         response = gemini_provider.generate_text(prompt)
 
+    elif provider == "local": # Added fine-tuned model
+        return local_provider.generate_sql(prompt)
+
     else:
-        raise ValueError("Unsupported provider")
+        raise ValueError("Unsupported provider from report_service.py")
 
     try:
         cleaned = response.replace("```json", "").replace("```", "").strip()

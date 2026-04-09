@@ -156,6 +156,7 @@ export default function App() {
               <option value="groq" className="bg-slate-900">Groq (Llama 3)</option>
               <option value="gemini" className="bg-slate-900">Gemini Pro</option>
               <option value="gpt" className="bg-slate-900">OpenAI GPT-4</option>
+              <option value="local" className="bg-slate-900">Fine Tuned llama</option>
             </select>
           </div>
 
