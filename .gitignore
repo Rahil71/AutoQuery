@@ -1,3 +1,2 @@
 .env
-./FineTunedLlama/llama-3-8b.Q4_K_M.gguf
-./FineTunedLlama/Modelfile
+FineTunedLlama/
